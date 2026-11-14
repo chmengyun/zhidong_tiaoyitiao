@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# 编辑器 / IDE
+.idea/
+.vscode/
+
+# 本地配置：含设备序列号与按压档案，不公开
+config.json
+
+# 运行产物
+logs/
+debug_frames/
+debug_frames.zip
+analyze*.png
+.screenshots/
+.trae/
+
+# 安装包与签名文件（正式包请通过 GitHub Releases 发布）
+release/*.apk
+*.apk
+*.aab
+*.jks
+*.keystore
+keystore.properties
