@@ -55,24 +55,24 @@ copy config.example.json config.json
 cp config.example.json config.json
 ```
 
-`config.json` 已被 `.gitignore` 排除，**不会上传**。它用于保存：
+`config.json` 用于保存本地运行配置，已被 `.gitignore` 排除：
 
-- 你的设备序列号 `serial`
-- 本机校准后的 `press_profiles` 按压档案
+- 设备序列号 `serial`
+- 校准后的 `press_profiles` 按压档案
 
 `config.example.json` 只包含通用参数：`serial` 为空、`press_profiles` 为空，
-`press_per_px = 1.2`、`press_overhead_ms = 20` 只是起步值，需要在你的手机上校准。
+`press_per_px = 1.2`、`press_overhead_ms = 20` 只是起步值，需要在目标设备上校准。
 
 多设备或需要固定设备时，在 `config.json` 中填写：
 
 ```json
-"serial": "你的设备序列号"
+"serial": "<设备序列号>"
 ```
 
 或运行时指定：
 
 ```bash
-python main.py run --serial 你的设备序列号
+python main.py run --serial <设备序列号>
 ```
 
 ## 快速开始
@@ -118,13 +118,7 @@ python main.py show-config
 
 ## Android 悬浮球版
 
-- 正式安装包：请到本仓库的 **Releases** 页面下载
+- 正式安装包：[JumpBot-v1.0-release.apk](https://github.com/chmengyun/zhidong_tiaoyitiao/releases/download/v1.0/JumpBot-v1.0-release.apk)
 - 不提供 App 源码
 - App 与 Python 版使用同一套识别参数和按压公式
 
-## 隐私与安全
-
-- 设备序列号、按压档案只保存在本地 `config.json`，不会提交到仓库
-- 调试截图、运行日志、录屏内容不会上传
-- 自动跳跃只在识别成功时执行；识别失败会暂停，人工确认后才恢复
-- 请遵守游戏与平台的使用规则，仅用于学习与研究
