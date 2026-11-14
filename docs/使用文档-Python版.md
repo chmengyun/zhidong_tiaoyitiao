@@ -32,7 +32,7 @@ Android 悬浮球版：仅提供正式安装包（见 GitHub Releases），不�
 
 ### 2.1 依赖
 
-- Python 3.9+（推荐 3.10/3.11）
+- Python 3.9+（开发与测试环境为 3.10/3.11）
 - `adb` 已加入 PATH，且 `adb devices` 能看到手机
 - 手机开启「USB 调试」，首次连接时在手机上允许调试授权
 
@@ -48,21 +48,21 @@ adb devices
 
 - 打开微信小游戏「跳一跳」，停在**可跳跃**画面；
 - 手机亮度、分辨率保持稳定；分屏/小窗/悬浮球遮挡都会影响识别；
-- 建议关闭系统的「自动旋转」和刘海遮挡区域的额外 UI。
+- 系统「自动旋转」和刘海遮挡区域的额外 UI 会改变布局、影响识别。
 
 ### 2.3 多设备
 
 连接多台手机时必须用 `--serial` 指定，否则脚本会直接报错，避免操作错设备：
 
 ```bash
-python main.py run --serial 你的设备序列号
+python main.py run --serial <设备序列号>
 ```
 
 ---
 
 ## 3. 快速开始
 
-### 3.1 只识别，不操作（推荐先跑）
+### 3.1 只识别，不操作
 
 ```bash
 python main.py analyze
@@ -71,14 +71,14 @@ python main.py analyze
 输出示例：
 
 ```
-设备已连接: 你的设备序列号  分辨率 1080x2408
+设备已连接: <设备序列号>  分辨率 1080x2408
 按压参数: 1.20 ms/px + 20ms（通用起步值，需校准）
 Scene(state=playing, distance=512.3, piece=..., current=..., target=...)
 建议按压: 635ms (k=1.20, 原始值 634.8ms)
 标注图已保存: ...\analyze.png
 ```
 
-`analyze.png` 会用不同颜色标出棋子、当前平台、目标平台，先确认标注正确再跑自动。
+`analyze.png` 会用不同颜色标出棋子、当前平台、目标平台，确认标注正确后再运行自动跳跃。
 
 ### 3.2 自动跳跃
 
@@ -100,7 +100,7 @@ python main.py run --dry-run         # 只识别和算时长，不按压
 python main.py calibrate
 ```
 
-流程：脚本给出距离与建议按压时长 → 你输入本次实际按住的毫秒数（直接回车用建议值）
+流程：脚本给出距离与建议按压时长 → 输入本次实际按住的毫秒数（直接回车用建议值）
 → 落地成功则反推新的 `press_per_px`，并询问是否写回 `config.json` 和当前设备档案。
 
 ### 3.4 查看当前生效参数
@@ -156,7 +156,7 @@ python main.py show-config
 python main.py show-config          # 打印完整生效配置
 ```
 
-> 注意：`screenshot_delay_ms`、`restart_retries` 当前版本只保留字段，运行逻辑尚未使用
+> `screenshot_delay_ms`、`restart_retries` 当前版本只保留字段，运行逻辑尚未使用
 > （截图靠稳定帧检测，重开固定最多 5 次）。保留是为了与 App 版配置字段兼容。
 
 ### 5.1 仅 Python 版使用的字段
@@ -168,7 +168,7 @@ python main.py show-config          # 打印完整生效配置
 | `press_method` | `swipe` | `swipe`：单条 `input swipe`；`motionevent`：DOWN→sleep→UP |
 | `debug_dir` | `debug_frames` | 调试截图目录（相对项目根） |
 | `log_csv` | `logs/jumps.csv` | 跳跃记录文件 |
-| `press_profiles` | 两条档案 | 按「序列号 + 分辨率」匹配，见 6.2 |
+| `press_profiles` | `[]` | 按「序列号 + 分辨率」匹配，见 6.2 |
 
 ---
 
@@ -195,13 +195,13 @@ press = clamp(press, min_press_ms, max_press_ms)   # 被截断时日志标记 (�
 - 只匹配分辨率 = 1 分；
 - 字段留空视为通配；取分数最高的档案，用其覆盖全局 `press_per_px` / `press_overhead_ms`。
 
-仓库中的 `config.example.json` **不包含任何真实设备档案**（`press_profiles` 为空）。
-需要时在本地 `config.json` 中按下面格式添加：
+`config.example.json` 的 `press_profiles` 为空。
+在本地 `config.json` 中按下面格式添加设备档案：
 
 ```json
 "press_profiles": [
   {
-    "serial": "你的设备序列号",
+    "serial": "<设备序列号>",
     "resolution": "1080x2408",
     "note": "设备备注",
     "press_per_px": 1.20,
@@ -210,8 +210,8 @@ press = clamp(press, min_press_ms, max_press_ms)   # 被截断时日志标记 (�
 ]
 ```
 
-> 真实序列号与按压档案只保存在本地 `config.json`，该文件已被 `.gitignore` 排除。
-> `calibrate` 成功后会通过 `save_press_profile()` 把结果写回当前设备档案（没有则新增）。
+`config.json` 已被 `.gitignore` 排除。
+`calibrate` 成功后会通过 `save_press_profile()` 把结果写回当前设备档案（没有则新增）。
 
 ### 6.3 落点偏差 residual_px
 
@@ -367,12 +367,12 @@ residual = (本次棋子落点 - 当前平台中心) · 跳跃方向单位向量
 
 ## 8. 调参案例
 
-先看 `logs/jumps.csv` 的 `residual_px` 列，再决定动哪里。
+调参依据：`logs/jumps.csv` 的 `residual_px` 列。
 
 ### 8.1 落点整体偏近 / 偏远
 
 - 症状：residual 均值持续为负（偏近）或为正（偏远），各距离段都一样偏。
-- 处理：优先调 `press_overhead_ms`，每 10ms 约等于 7~8px（按 1.35 系数反推）。
+- 处理：优先调 `press_overhead_ms`，每 10ms 约等于 7~8px（按 1.2~1.4 的系数反推）。
   - 偏近：`press_overhead_ms += 10~20`；
   - 偏远：`press_overhead_ms -= 10~20`。
 
@@ -415,10 +415,10 @@ residual = (本次棋子落点 - 当前平台中心) · 跳跃方向单位向量
 - `settle_ms` 增加到 1100，避免截到落地动画；
 - 检查手机是否被系统弹窗、广告、悬浮球遮挡。
 
-### 8.8 换了一台手机
+### 8.8 更换设备
 
 1. 运行 `python main.py show-config`，看是否已套用对应档案；
-2. 没有档案就新增一条（序列号 + 分辨率），初始 `1.11 / 34`；
+2. 没有档案就新增一条（序列号 + 分辨率），初始 `1.20 / 20`；
 3. 跑 10 跳，按 8.1~8.3 微调，或直接用 `calibrate` 反推。
 
 ---
@@ -463,7 +463,7 @@ python -c "import cv2; from jumpbot.config import Config; from jumpbot.vision im
 ### 9.5 单元测试
 
 ```bash
-python -m unittest discover -s tests -v
+python -m unittest discover -v
 ```
 
 ---
